@@ -4,6 +4,8 @@ const port = 3000
 
 const mongoose = require("mongoose")
 
+const config = require('./config/key')
+
 const bodyParser = require('body-parser')
 // User model 을 import 합니다.
 const { User } = require("./models/User")
@@ -14,7 +16,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // application/json
 app.use(bodyParser.json());
 
-mongoose.connect("mongodb+srv://test:test@fuckingdb.rufm6.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+// mongoose.connect("mongodb+srv://test:test@fuckingdb.rufm6.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+mongoose.connect(config.mongoURI)
 	.then(() => {
 		console.log('MongoDB Connected...')
 	})

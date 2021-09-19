@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const jwt = require('jsonwebtoken')
 
 const userSchema = mongoose.Schema({
 	name: {
@@ -15,7 +16,6 @@ const userSchema = mongoose.Schema({
 	},
 	password: {
 		type: String,
-		maxlength: 50,
 		minlength: 1
 	},
 	role: {
@@ -52,8 +52,42 @@ userSchema.pre('save', function (next) {
 				next();
 			});
 		});
+	} else {
+		next();
 	}
 })
+
+// comparePassword method 작성하기
+userSchema.methods.comparePassword = function (plainPassword, callback) {
+	// plain password     hash 된 비밀번호 를 비교해야합니다.
+	// 0. plain password 를 hash 합니다. (hash 는 oneway 라서 plain으로 못만들어요.)
+	bcrypt.compare(plainPassword, this.password, function (err, isMatch) {
+		if (err) return callback(err);
+		callback(null, isMatch);
+	})
+}
+
+// token 생성 Method 작성하기
+userSchema.methods.generateToken = function (callback) {
+	var user = this
+
+	// jsonwebtoken 을 사용하여 token 생성하기
+	var token = jwt.sign(user._id.toHexString(), 'secretToken')
+	/*
+	_id + 'secretToken' => token
+
+	token 에 'secretToken' 을 넣으면 => _id 가 나옵니다.
+	우리는 _id 를 통해서 이친구가 접속한 기록이 있는지 알 수 있습니다.
+	*/
+	user.token = token;
+	// 여기서 save 를 호출할 수 있는 이유는 model 이 generateToken() 을 호출하기 때문입니다.
+	user.save(function (err, user) {
+		// console.log("error:", err);
+		// console.log("user:", user);
+		if (err) return callback(err);
+		callback(null, user);
+	})
+}
 
 const User = mongoose.model('User', userSchema)
 

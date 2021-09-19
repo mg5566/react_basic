@@ -11,6 +11,7 @@ const bodyParser = require('body-parser')
 const { User } = require("./models/User")
 const cookieParser = require("cookie-parser")
 
+const { auth } = require('./middleware/auth')
 
 // bodyParser 옵션 설정
 // application/x-www-form-urlencoded
@@ -34,7 +35,7 @@ app.get('/', (req, res) => {
 })
 
 // post method
-app.post('/register', (req, res) => {
+app.post('/api/users/register', (req, res) => {
 	// 회원가입할때 필요한 정보들을 client 에서 가져오면 DB에 추가하기
 	// req.body 에 아래와 같은 형식으로 읽을 수 있도록 위에서 옵션을 추가했습니다.
 	/* bodyparser 좋네요
@@ -52,7 +53,7 @@ app.post('/register', (req, res) => {
 })
 
 // loging router
-app.post('/login', (req, res) => {
+app.post('/api/users/login', (req, res) => {
 	// 요청한 email 을 DB에 있는지 찾아본다.
 	// console.log("email:", req.body.email);
 	User.findOne({ email: req.body.email }, (err, user) => {
@@ -82,6 +83,24 @@ app.post('/login', (req, res) => {
 					.json({ loginSuccess: true, userId: user._id })
 			})
 		})
+	})
+})
+
+// auth
+// 향후 express router 기능 사용을 위해서 api/users 로 정리합니다.
+// auth 라는 미들웨어를 추가할 예정입니다.
+app.get('/api/users/auth', auth, (req, res) => {
+	// 이게 실행되면 authentication 이 성공햇다는 말 (true)
+	// auth 미들웨어에서 req.token 과 req.user._id 을 추가했습니다.
+	res.status(200).json({
+		_id: req.user._id,
+		isAdmin: req.user.role === 0 ? false : true,  // role 이 0이 아니면 admin
+		isAuth: true,
+		email: req.user.email,
+		name: req.user.name,
+		lastname: req.user.lastname,
+		role: req.user.role,
+		image: req.user.image,
 	})
 })
 

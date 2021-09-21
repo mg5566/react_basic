@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const port = 3000
+const port = 4000
 
 const mongoose = require("mongoose")
 
@@ -32,6 +32,11 @@ mongoose.connect(config.mongoURI)
 
 app.get('/', (req, res) => {
 	res.send('Hello World!')
+})
+
+// LandinPage get method
+app.get('/api/hello', (req, res) => {
+	res.send("Hello~!")
 })
 
 // post method

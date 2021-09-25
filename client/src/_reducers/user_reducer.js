@@ -1,1 +1,12 @@
-// login 과 register 만들때 직접 추가한다.
+import { LOGIN_USER } from "../_actions/types";
+
+export default function (state = {}, action) {
+	switch (action.key) {
+		case LOGIN_USER:
+			return { ...state, loginSuccess: action.payload }
+			break;
+
+		default:
+			return state;
+	}
+}
